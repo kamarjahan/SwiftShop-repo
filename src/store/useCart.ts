@@ -9,12 +9,14 @@ export interface CartItem extends Product {
 interface CartStore {
   items: CartItem[];
   isOpen: boolean;
-  addItem: (product: Product) => void;
+  appliedCoupon: any | null;
+  addItem: (product: any) => void;
   removeItem: (productId: string) => void;
   updateQuantity: (productId: string, quantity: number) => void;
   clearCart: () => void;
   toggleCart: () => void;
   setIsOpen: (isOpen: boolean) => void;
+  setAppliedCoupon: (coupon: any | null) => void;
 }
 
 export const useCart = create<CartStore>()(
@@ -22,7 +24,8 @@ export const useCart = create<CartStore>()(
     (set, get) => ({
       items: [],
       isOpen: false,
-      addItem: (product: Product) => {
+      appliedCoupon: null,
+      addItem: (product: any) => {
         const items = get().items;
         const existingItem = items.find(item => item.id === product.id);
         
@@ -53,13 +56,14 @@ export const useCart = create<CartStore>()(
           )
         });
       },
-      clearCart: () => set({ items: [] }),
+      clearCart: () => set({ items: [], appliedCoupon: null }),
       toggleCart: () => set({ isOpen: !get().isOpen }),
       setIsOpen: (isOpen: boolean) => set({ isOpen }),
+      setAppliedCoupon: (coupon: any | null) => set({ appliedCoupon: coupon }),
     }),
     {
       name: 'jachu-cart-storage',
-      partialize: (state) => ({ items: state.items }),
+      partialize: (state) => ({ items: state.items, appliedCoupon: state.appliedCoupon }),
     }
   )
 );

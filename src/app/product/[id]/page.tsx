@@ -1,94 +1,143 @@
-import { mockProducts } from "@/lib/mockData";
-import { notFound } from "next/navigation";
-import Image from "next/image";
-import { Star, Truck, Shield, ArrowLeft } from "lucide-react";
+"use client";
+
+import { useEffect, useState } from "react";
+import { useParams } from "next/navigation";
+import { doc, getDoc, collection, query, where, limit, getDocs } from "firebase/firestore";
+import { db } from "@/lib/firebase";
 import Link from "next/link";
-import ClientAddToCart from "./ClientAddToCart";
+import { ArrowLeft, Loader2, Star } from "lucide-react";
+import ProductGallery from "@/components/product/ProductGallery";
+import ProductDetailsClient from "@/components/product/ProductDetailsClient";
 
-export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
-  const resolvedParams = await params;
-  const product = mockProducts.find(p => p.id === resolvedParams.id);
-  if (!product) return { title: 'Product Not Found' };
-  
-  return {
-    title: `${product.name} | SwiftShop`,
-    description: product.description,
-  };
-}
+export default function ProductPage() {
+  const { id } = useParams() as { id: string };
+  const [product, setProduct] = useState<any>(null);
+  const [recommended, setRecommended] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
-// Generate static params for mock data so it statically generates
-export async function generateStaticParams() {
-  return mockProducts.map((product) => ({
-    id: product.id,
-  }));
-}
+  useEffect(() => {
+    const fetchProduct = async () => {
+      try {
+        const docSnap = await getDoc(doc(db, "products", id));
+        if (docSnap.exists()) {
+          const productData = { id: docSnap.id, ...docSnap.data() };
+          setProduct(productData);
 
-export default async function ProductPage({ params }: { params: Promise<{ id: string }> }) {
-  const resolvedParams = await params;
-  const product = mockProducts.find(p => p.id === resolvedParams.id);
-  
+          // Fetch recommended
+          try {
+            const q = query(
+              collection(db, "products"), 
+              where("category", "==", productData.category), 
+              limit(5)
+            );
+            const recSnap = await getDocs(q);
+            const recs = recSnap.docs
+              .map(d => ({ id: d.id, ...d.data() }))
+              .filter(p => p.id !== id)
+              .slice(0, 4);
+            setRecommended(recs);
+          } catch (e) {
+            console.error("Error fetching recommended", e);
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching product", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    if (id) fetchProduct();
+  }, [id]);
+
+  if (loading) {
+    return (
+      <div className="min-h-[70vh] flex items-center justify-center">
+        <Loader2 className="w-10 h-10 animate-spin text-foreground/40" />
+      </div>
+    );
+  }
+
   if (!product) {
-    notFound();
+    return (
+      <div className="min-h-[70vh] flex flex-col items-center justify-center gap-4">
+        <h1 className="text-3xl font-black">Product Not Found</h1>
+        <p className="text-foreground/60">The product you are looking for does not exist or was removed.</p>
+        <Link href="/shop" className="bg-foreground text-background px-6 py-2 rounded-full font-bold mt-4">
+          Browse Shop
+        </Link>
+      </div>
+    );
   }
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-6xl">
-      <Link href="/" className="inline-flex items-center gap-2 text-sm font-medium text-foreground/60 hover:text-foreground mb-8 transition-colors">
+    <div className="container mx-auto px-4 py-8 max-w-7xl">
+      <Link href="/" className="inline-flex items-center gap-2 text-sm font-medium text-foreground/60 hover:text-foreground mb-6 transition-colors">
         <ArrowLeft className="w-4 h-4" /> Back to Home
       </Link>
       
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-        {/* Product Images */}
-        <div className="space-y-4">
-          <div className="aspect-square relative rounded-[var(--radius-bento)] overflow-hidden bg-slate-100 dark:bg-slate-900 border border-bento-border shadow-[var(--shadow-bento)]">
-            <Image 
-              src={product.images[0]} 
-              alt={product.name}
-              fill
-              className="object-cover hover:scale-105 transition-transform duration-500"
-              priority
-            />
-          </div>
+      <div className="flex flex-col md:flex-row gap-8 lg:gap-12">
+        {/* Left: Amazon-style Image Gallery */}
+        <div className="w-full md:w-1/2 lg:w-7/12">
+          <ProductGallery images={product.images || []} />
         </div>
 
-        {/* Product Info */}
-        <div className="flex flex-col justify-center">
-          <div className="mb-2">
-            <span className="text-xs font-bold uppercase tracking-wider text-slate-500">{product.category}</span>
-          </div>
-          <h1 className="text-4xl md:text-5xl font-black tracking-tight mb-4">{product.name}</h1>
-          
-          <div className="flex items-center gap-4 mb-6">
-            <div className="flex items-center gap-1 text-yellow-500">
-              <Star className="w-5 h-5 fill-currentColor" />
-              <span className="font-bold text-foreground">{product.rating}</span>
-            </div>
-            <span className="text-foreground/50 text-sm">({product.reviewsCount} reviews)</span>
-          </div>
-
-          <div className="flex items-end gap-3 mb-8">
-            <span className="text-4xl font-black">${product.price.toFixed(2)}</span>
-            {product.originalPrice && (
-              <span className="text-xl text-foreground/40 line-through mb-1">${product.originalPrice.toFixed(2)}</span>
-            )}
-          </div>
-
-          <p className="text-foreground/80 leading-relaxed mb-10 text-lg">
-            {product.description}
-          </p>
-
-          <ClientAddToCart product={product} />
-
-          <div className="grid grid-cols-2 gap-4 mt-12 pt-8 border-t border-bento-border">
-            <div className="flex items-center gap-3 text-sm font-medium text-foreground/70">
-              <Truck className="w-5 h-5" /> Free Express Delivery
-            </div>
-            <div className="flex items-center gap-3 text-sm font-medium text-foreground/70">
-              <Shield className="w-5 h-5" /> 1-Year Warranty
-            </div>
-          </div>
+        {/* Right: Interactive Layout */}
+        <div className="w-full md:w-1/2 lg:w-5/12">
+          <ProductDetailsClient product={product} />
         </div>
       </div>
+
+      {/* User Reviews */}
+      <div className="mt-16 pt-8 border-t border-bento-border">
+        <h2 className="text-2xl font-black mb-6">Customer Reviews</h2>
+        <div className="bg-bento-card border border-bento-border p-8 rounded-xl shadow-[var(--shadow-bento)] text-center">
+          {product.reviews && product.reviews.length > 0 ? (
+            <div className="space-y-4">
+              {product.reviews.map((r: any, idx: number) => (
+                <div key={idx} className="border-b border-bento-border pb-4 last:border-0 text-left">
+                  <div className="flex items-center gap-2 mb-1">
+                    <div className="font-bold text-sm">{r.user || "Verified Customer"}</div>
+                    <div className="text-yellow-500 flex text-xs">
+                      {[...Array(5)].map((_, i) => (
+                        <Star key={i} className={`w-3 h-3 ${i < r.rating ? "fill-currentColor" : "text-foreground/20"}`} />
+                      ))}
+                    </div>
+                  </div>
+                  <p className="text-sm text-foreground/80">{r.comment}</p>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="py-8">
+              <p className="text-foreground/60">No reviews yet.</p>
+              <p className="text-sm text-foreground/40 mt-2">Real reviews from verified purchases will appear here.</p>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Recommended Products */}
+      {recommended.length > 0 && (
+        <div className="mt-16 pt-8 border-t border-bento-border">
+          <h2 className="text-2xl font-black mb-6">Recommended Products</h2>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {recommended.map(rec => (
+              <Link href={`/product/${rec.id}`} key={rec.id} className="group bg-background border border-bento-border rounded-xl overflow-hidden hover:shadow-lg transition-all">
+                <div className="aspect-square relative overflow-hidden bg-slate-100">
+                  <img src={rec.images?.[0] || ""} alt={rec.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                </div>
+                <div className="p-4">
+                  <h3 className="font-bold text-sm line-clamp-2 mb-1 group-hover:text-blue-500 transition-colors">{rec.name}</h3>
+                  <div className="flex items-center gap-2">
+                    <span className="font-black text-lg">₹{(rec.price || 0).toFixed(2)}</span>
+                    {rec.mrp && <span className="text-xs text-foreground/50 line-through">₹{(rec.mrp).toFixed(2)}</span>}
+                  </div>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

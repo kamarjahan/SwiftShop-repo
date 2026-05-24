@@ -2,8 +2,9 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { ShoppingCart, Search, Home, User, Heart } from 'lucide-react';
+import { ShoppingCart, Home, User, Heart, Search, Package } from 'lucide-react';
 import { useCart } from "@/store/useCart";
+import LiveSearch from "./LiveSearch";
 
 export default function Navigation() {
   const { toggleCart, items } = useCart();
@@ -23,16 +24,18 @@ export default function Navigation() {
           <nav className="flex gap-6 text-sm font-medium text-foreground/80">
             <Link href="/shop" className="hover:text-foreground transition-colors">Shop</Link>
             <Link href="/categories" className="hover:text-foreground transition-colors">Categories</Link>
-            <Link href="/deals" className="hover:text-foreground transition-colors">Deals</Link>
           </nav>
         </div>
         
         <div className="flex items-center gap-6">
-          <div className="relative group cursor-pointer">
-            <Search className="w-5 h-5 text-foreground/60 group-hover:text-foreground transition-colors" />
+          <div className="relative group flex items-center justify-center mr-4 w-64">
+            <LiveSearch />
           </div>
-          <Link href="/account" className="relative group">
+          <Link href="/account" className="relative group" title="Account">
             <User className="w-5 h-5 text-foreground/60 group-hover:text-foreground transition-colors" />
+          </Link>
+          <Link href="/orders" className="relative group" title="Orders">
+            <Package className="w-5 h-5 text-foreground/60 group-hover:text-foreground transition-colors" />
           </Link>
           <button onClick={toggleCart} className="relative group flex items-center">
             <ShoppingCart className="w-5 h-5 text-foreground/60 group-hover:text-foreground transition-colors" />
@@ -50,8 +53,13 @@ export default function Navigation() {
         <Link href="/" className="text-xl font-black tracking-tighter">
           Swift<span className="text-slate-500">Shop</span>
         </Link>
-        <div className="flex gap-4 items-center">
-          <Search className="w-5 h-5 text-foreground/80" />
+        <div className="flex gap-4 items-center flex-1 ml-4 justify-end">
+          <div className="hidden sm:block flex-1 max-w-[200px]">
+            <LiveSearch />
+          </div>
+          <Link href="/orders" className="relative">
+            <Package className="w-5 h-5 text-foreground/80" />
+          </Link>
           <button onClick={toggleCart} className="relative">
             <ShoppingCart className="w-5 h-5 text-foreground/80" />
             {cartItemCount > 0 && (

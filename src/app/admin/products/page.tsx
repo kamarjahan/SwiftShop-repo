@@ -4,9 +4,9 @@ import { useEffect, useState } from "react";
 import { collection, getDocs, deleteDoc, doc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import Link from "next/link";
-import { Plus, Edit, Trash2, Loader2 } from "lucide-react";
+import { Plus, Edit, Trash2, Loader2, Search } from "lucide-react";
 
-export default function InventoryPage() {
+export default function ProductsPage() {
   const [products, setProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -41,11 +41,11 @@ export default function InventoryPage() {
     <div className="max-w-7xl mx-auto space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-black">Inventory</h1>
+          <h1 className="text-3xl font-black">Products</h1>
           <p className="text-foreground/60">Manage your product catalog.</p>
         </div>
         <Link 
-          href="/admin/inventory/new" 
+          href="/admin/products/new" 
           className="bg-foreground text-background px-4 py-2 rounded-lg font-bold flex items-center gap-2 hover:bg-foreground/90 transition-colors"
         >
           <Plus className="w-5 h-5" /> Add Product
@@ -56,8 +56,9 @@ export default function InventoryPage() {
         {loading ? (
           <div className="p-12 flex justify-center"><Loader2 className="w-8 h-8 animate-spin text-foreground/40" /></div>
         ) : products.length === 0 ? (
-          <div className="p-12 text-center text-foreground/50">
-            <p>No products found in Firestore.</p>
+          <div className="p-12 text-center text-foreground/50 flex flex-col items-center">
+            <Search className="w-12 h-12 text-foreground/20 mb-4" />
+            <p>No products found.</p>
             <p className="text-sm mt-2">Click "Add Product" to create your first item!</p>
           </div>
         ) : (
@@ -69,6 +70,7 @@ export default function InventoryPage() {
                   <th className="px-6 py-4">Category</th>
                   <th className="px-6 py-4">Price</th>
                   <th className="px-6 py-4">Stock</th>
+                  <th className="px-6 py-4">SKU</th>
                   <th className="px-6 py-4 text-right">Actions</th>
                 </tr>
               </thead>
@@ -82,10 +84,11 @@ export default function InventoryPage() {
                       <span className="font-bold">{product.name}</span>
                     </td>
                     <td className="px-6 py-4 uppercase text-xs font-bold text-foreground/60">{product.category}</td>
-                    <td className="px-6 py-4 font-bold">${Number(product.price).toFixed(2)}</td>
-                    <td className="px-6 py-4">{product.stock || 'In Stock'}</td>
+                    <td className="px-6 py-4 font-bold">₹{Number(product.price).toFixed(2)}</td>
+                    <td className="px-6 py-4">{product.totalStock !== undefined ? product.totalStock : 'N/A'}</td>
+                    <td className="px-6 py-4">{product.sku || 'N/A'}</td>
                     <td className="px-6 py-4 flex justify-end gap-2">
-                      <button className="p-2 text-blue-500 hover:bg-blue-500/10 rounded-lg transition-colors"><Edit className="w-4 h-4" /></button>
+                      <Link href={`/admin/products/${product.id}/edit`} className="p-2 text-blue-500 hover:bg-blue-500/10 rounded-lg transition-colors"><Edit className="w-4 h-4" /></Link>
                       <button onClick={() => handleDelete(product.id)} className="p-2 text-red-500 hover:bg-red-500/10 rounded-lg transition-colors"><Trash2 className="w-4 h-4" /></button>
                     </td>
                   </tr>

@@ -4,7 +4,7 @@ import { useCart } from "@/store/useCart";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Minus, Plus, ShoppingBag } from "lucide-react";
 import { useEffect, useState } from "react";
-import RazorpayCheckout from "./RazorpayCheckout";
+import Link from "next/link";
 
 export default function CartDrawer() {
   const { isOpen, setIsOpen, items, updateQuantity, removeItem } = useCart();
@@ -17,9 +17,6 @@ export default function CartDrawer() {
   if (!mounted) return null;
 
   const subtotal = items.reduce((acc, item) => acc + item.price * item.quantity, 0);
-  const tax = subtotal * 0.08;
-  const shipping = subtotal > 100 ? 0 : 15;
-  const total = subtotal + tax + shipping;
 
   return (
     <AnimatePresence>
@@ -64,11 +61,11 @@ export default function CartDrawer() {
                 items.map((item) => (
                   <div key={item.id} className="flex gap-4 items-center bg-background border border-bento-border p-3 rounded-2xl relative group">
                     <div className="w-20 h-20 bg-slate-100 dark:bg-slate-900 rounded-xl overflow-hidden relative flex-shrink-0">
-                      <img src={item.images[0]} alt={item.name} className="object-cover w-full h-full" />
+                      <img src={item.image || item.images?.[0] || ""} alt={item.name} className="object-cover w-full h-full" />
                     </div>
                     <div className="flex-1">
                       <h4 className="font-bold text-sm line-clamp-1 pr-6">{item.name}</h4>
-                      <p className="font-black text-sm mt-1">${item.price.toFixed(2)}</p>
+                      <p className="font-black text-sm mt-1">₹{item.price.toFixed(2)}</p>
                       <div className="flex items-center gap-3 mt-2 bg-foreground/5 w-fit rounded-lg p-1">
                         <button onClick={() => updateQuantity(item.id, item.quantity - 1)} className="w-6 h-6 flex items-center justify-center hover:bg-background rounded shadow-sm"><Minus className="w-3 h-3" /></button>
                         <span className="text-xs font-bold w-4 text-center">{item.quantity}</span>
@@ -88,23 +85,21 @@ export default function CartDrawer() {
                 <div className="space-y-3 mb-6 text-sm">
                   <div className="flex justify-between text-foreground/70">
                     <span>Subtotal</span>
-                    <span className="font-bold">${subtotal.toFixed(2)}</span>
-                  </div>
-                  <div className="flex justify-between text-foreground/70">
-                    <span>Tax (8%)</span>
-                    <span className="font-bold">${tax.toFixed(2)}</span>
-                  </div>
-                  <div className="flex justify-between text-foreground/70">
-                    <span>Shipping</span>
-                    <span className="font-bold">{shipping === 0 ? "Free" : `$${shipping.toFixed(2)}`}</span>
+                    <span className="font-bold">₹{subtotal.toFixed(2)}</span>
                   </div>
                   <div className="pt-3 border-t border-bento-border flex justify-between items-end">
-                    <span className="font-bold">Total</span>
-                    <span className="text-3xl font-black">${total.toFixed(2)}</span>
+                    <span className="font-bold">Estimated Total</span>
+                    <span className="text-3xl font-black">₹{subtotal.toFixed(2)}</span>
                   </div>
                 </div>
                 
-                <RazorpayCheckout total={total} items={items} />
+                <Link 
+                  href="/cart"
+                  onClick={() => setIsOpen(false)}
+                  className="w-full bg-foreground text-background py-4 rounded-xl font-black text-lg hover:bg-foreground/90 transition-colors flex justify-center items-center h-14"
+                >
+                  View Full Cart
+                </Link>
               </div>
             )}
           </motion.div>

@@ -6,6 +6,7 @@ import Footer from "@/components/layout/Footer";
 import PageWrapper from "@/components/layout/PageWrapper";
 import { AuthProvider } from "@/contexts/AuthContext";
 import CartDrawer from "@/components/cart/CartDrawer";
+import MaintenanceWrapper from "@/components/layout/MaintenanceWrapper";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -43,14 +44,17 @@ export default function RootLayout({
   return (
     <html
       lang="en"
+      suppressHydrationWarning
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
         <AuthProvider>
-          <Navigation />
-          <CartDrawer />
-          <PageWrapper>{children}</PageWrapper>
-          <Footer />
+          <MaintenanceWrapper>
+            <Navigation />
+            <CartDrawer />
+            <PageWrapper>{children}</PageWrapper>
+            <Footer />
+          </MaintenanceWrapper>
         </AuthProvider>
       </body>
     </html>

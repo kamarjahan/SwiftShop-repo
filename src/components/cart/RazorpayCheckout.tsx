@@ -99,7 +99,7 @@ export default function RazorpayCheckout({ total, items }: RazorpayCheckoutProps
         disabled={loading || items.length === 0}
         className="w-full bg-foreground text-background py-4 rounded-xl font-black text-lg hover:bg-foreground/90 transition-colors flex justify-center items-center h-14 disabled:opacity-50"
       >
-        {loading ? <Loader2 className="w-6 h-6 animate-spin" /> : `Checkout • $${total.toFixed(2)}`}
+        {loading ? <Loader2 className="w-6 h-6 animate-spin" /> : `Checkout • ₹${total.toFixed(2)}`}
       </button>
     </>
   );

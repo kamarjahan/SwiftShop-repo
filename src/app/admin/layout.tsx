@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Package, ShoppingCart, Settings, LogOut } from "lucide-react";
+import { LayoutDashboard, Package, ShoppingCart, Settings, LogOut, Tag, MessageSquare } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { signOut } from "firebase/auth";
 import { auth } from "@/lib/firebase";
@@ -13,9 +13,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   const navItems = [
     { label: "Overview", href: "/admin", icon: LayoutDashboard },
-    { label: "Inventory", href: "/admin/inventory", icon: Package },
+    { label: "Products", href: "/admin/products", icon: Package },
+    { label: "Coupons", href: "/admin/coupons", icon: Tag }, 
     { label: "Orders", href: "/admin/orders", icon: ShoppingCart },
+    { label: "Support", href: "/admin/support", icon: MessageSquare },
     { label: "Settings", href: "/admin/settings", icon: Settings },
+    { label: "Home Settings", href: "/admin/home-customization", icon: LayoutDashboard },
   ];
 
   // Optional: Add a strict role check here, redirect to / if not admin
