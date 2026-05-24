@@ -48,7 +48,7 @@ export default function AdminOrderDetailsPage({ params }: { params: Promise<{ id
         return;
       }
 
-      const orderData = { id: orderSnap.id, ...orderSnap.data() };
+      const orderData: any = { id: orderSnap.id, ...orderSnap.data() };
       setOrder(orderData);
       setStatus(orderData.status || "Pending");
       setTrackingId(orderData.trackingId || "");

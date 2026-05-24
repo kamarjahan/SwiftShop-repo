@@ -39,7 +39,7 @@ function ShopPageContent() {
     const fetchProducts = async () => {
       try {
         const snap = await getDocs(collection(db, "products"));
-        const data = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        const data: any[] = snap.docs.map(d => ({ id: d.id, ...d.data() }));
         setProducts(data);
         
         // Auto-adjust max price range based on fetched products

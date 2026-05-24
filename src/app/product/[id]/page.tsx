@@ -20,7 +20,7 @@ export default function ProductPage() {
       try {
         const docSnap = await getDoc(doc(db, "products", id));
         if (docSnap.exists()) {
-          const productData = { id: docSnap.id, ...docSnap.data() };
+          const productData: any = { id: docSnap.id, ...docSnap.data() };
           setProduct(productData);
 
           // Fetch recommended

@@ -5,12 +5,28 @@ import { User, onAuthStateChanged } from "firebase/auth";
 import { auth, db } from "@/lib/firebase";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 
-interface UserMetadata {
+export interface Address {
+  fullName: string;
+  phone: string;
+  pincode: string;
+  city: string;
+  flat: string;
+  area: string;
+  landmark?: string;
+  state: string;
+  isDefault: boolean;
+}
+
+export interface UserMetadata {
   email: string | null;
   displayName: string | null;
   photoURL: string | null;
   role: string;
   createdAt: string;
+  phone?: string;
+  wishlist?: string[];
+  addresses?: Address[];
+  address?: Address;
 }
 
 interface AuthContextType {

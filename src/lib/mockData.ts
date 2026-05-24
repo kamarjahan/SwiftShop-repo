@@ -6,6 +6,7 @@ export interface Product {
   description: string;
   category: string;
   images: string[];
+  image?: string;
   rating: number;
   reviewsCount: number;
   isFeatured?: boolean;
