@@ -10,15 +10,15 @@ export default function OrderTimeline({ status }: { status: string }) {
 
     if (isCancelled) {
       return [
-        { label: "Order Placed", icon: <Package className="w-5 h-5" />, completed: true },
-        { label: "Cancelled", icon: <XCircle className="w-5 h-5" />, completed: true, isError: true },
+        { label: "Order Placed", icon: <Package className="w-5 h-5" />, completed: true, isError: false, isWarning: false },
+        { label: "Cancelled", icon: <XCircle className="w-5 h-5" />, completed: true, isError: true, isWarning: false },
       ];
     }
 
     if (isReturned) {
       return [
-        { label: "Delivered", icon: <CheckCircle className="w-5 h-5" />, completed: true },
-        { label: status, icon: <AlertCircle className="w-5 h-5" />, completed: true, isWarning: true },
+        { label: "Delivered", icon: <CheckCircle className="w-5 h-5" />, completed: true, isError: false, isWarning: false },
+        { label: status, icon: <AlertCircle className="w-5 h-5" />, completed: true, isError: false, isWarning: true },
       ];
     }
 
@@ -40,7 +40,9 @@ export default function OrderTimeline({ status }: { status: string }) {
       return {
         ...step,
         completed: isCompleted,
-        isCurrent: isCurrent
+        isCurrent: isCurrent,
+        isError: false,
+        isWarning: false
       };
     });
   };
