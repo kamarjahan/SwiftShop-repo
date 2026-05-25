@@ -4,10 +4,14 @@ import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
-import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
+import dynamic from "next/dynamic";
 import { Loader2, ArrowLeft } from "lucide-react";
 import Link from "next/link";
+
+const MarkdownViewer = dynamic(() => import("@/components/MarkdownViewer"), { 
+  ssr: false, 
+  loading: () => <div className="animate-pulse space-y-4 max-w-3xl"><div className="h-4 bg-bento-border rounded w-3/4"></div><div className="h-4 bg-bento-border rounded w-1/2"></div><div className="h-4 bg-bento-border rounded w-5/6"></div></div> 
+});
 
 export default function PolicyClient() {
   const params = useParams();
@@ -102,11 +106,7 @@ export default function PolicyClient() {
         
         <h1 className="text-4xl md:text-5xl font-black mb-12 tracking-tight">{title}</h1>
         
-        <div className="prose prose-slate dark:prose-invert max-w-none prose-headings:font-black prose-p:leading-relaxed prose-a:text-blue-500 hover:prose-a:text-blue-600">
-          <ReactMarkdown remarkPlugins={[remarkGfm]}>
-            {content}
-          </ReactMarkdown>
-        </div>
+        <MarkdownViewer content={content} />
       </div>
     </div>
   );
