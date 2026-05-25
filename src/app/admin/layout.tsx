@@ -21,7 +21,6 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     { label: "Customers", href: "/admin/customers", icon: Users },
     { label: "Orders", href: "/admin/orders", icon: ShoppingCart },
     { label: "Support", href: "/admin/support", icon: MessageSquare },
-    { label: "Settings", href: "/admin/settings", icon: Settings },
     { label: "Home Settings", href: "/admin/home-customization", icon: LayoutDashboard },
   ];
 
