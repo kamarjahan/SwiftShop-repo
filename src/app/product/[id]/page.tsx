@@ -95,19 +95,29 @@ export default function ProductPage() {
         <div className="bg-bento-card border border-bento-border p-8 rounded-xl shadow-[var(--shadow-bento)] text-center">
           {product.reviews && product.reviews.length > 0 ? (
             <div className="space-y-4">
-              {product.reviews.map((r: any, idx: number) => (
+              {product.reviews.slice(0, 5).map((r: any, idx: number) => (
                 <div key={idx} className="border-b border-bento-border pb-4 last:border-0 text-left">
                   <div className="flex items-center gap-2 mb-1">
-                    <div className="font-bold text-sm">{r.user || "Verified Customer"}</div>
+                    <div className="font-bold text-sm">{r.userName || "Anonymous"}</div>
                     <div className="text-yellow-500 flex text-xs">
                       {[...Array(5)].map((_, i) => (
                         <Star key={i} className={`w-3 h-3 ${i < r.rating ? "fill-currentColor" : "text-foreground/20"}`} />
                       ))}
                     </div>
+                    {r.date && (
+                      <span className="text-xs text-foreground/50 ml-auto">
+                        {new Date(r.date).toLocaleDateString()}
+                      </span>
+                    )}
                   </div>
-                  <p className="text-sm text-foreground/80">{r.comment}</p>
+                  <p className="text-sm text-foreground/80 mt-2">{r.comment}</p>
                 </div>
               ))}
+              {product.reviews.length > 5 && (
+                <button className="mt-6 px-6 py-2 bg-foreground/10 hover:bg-foreground/20 text-foreground font-bold rounded-full transition-colors text-sm">
+                  See all {product.reviews.length} reviews
+                </button>
+              )}
             </div>
           ) : (
             <div className="py-8">

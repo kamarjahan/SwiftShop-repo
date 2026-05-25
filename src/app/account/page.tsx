@@ -41,6 +41,14 @@ export default function AccountPage() {
   }, [user, userData]);
 
   useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const tab = params.get("tab");
+    if (tab) {
+      setActiveTab(tab);
+    }
+  }, []);
+
+  useEffect(() => {
     if (user && activeTab === "dashboard") {
       fetchDashboardData();
     }

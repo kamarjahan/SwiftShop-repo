@@ -1,28 +1,45 @@
 "use client";
 
+import { useEffect } from "react";
+
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { LayoutDashboard, Package, ShoppingCart, Settings, LogOut, Tag, MessageSquare } from "lucide-react";
+import { usePathname, useRouter } from "next/navigation";
+import { LayoutDashboard, Package, ShoppingCart, Settings, LogOut, Tag, MessageSquare, Users } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { signOut } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const { user, userData } = useAuth();
+  const router = useRouter();
+  const { user, userData, loading } = useAuth();
 
   const navItems = [
     { label: "Overview", href: "/admin", icon: LayoutDashboard },
     { label: "Products", href: "/admin/products", icon: Package },
     { label: "Coupons", href: "/admin/coupons", icon: Tag }, 
+    { label: "Customers", href: "/admin/customers", icon: Users },
     { label: "Orders", href: "/admin/orders", icon: ShoppingCart },
     { label: "Support", href: "/admin/support", icon: MessageSquare },
     { label: "Settings", href: "/admin/settings", icon: Settings },
     { label: "Home Settings", href: "/admin/home-customization", icon: LayoutDashboard },
   ];
 
-  // Optional: Add a strict role check here, redirect to / if not admin
-  // if (userData && userData.role !== 'admin') return <div>Unauthorized</div>;
+  // Check 2: Layout Level Routing Redirect
+  useEffect(() => {
+    if (!loading && user?.email !== process.env.NEXT_PUBLIC_ADMIN_EMAIL) {
+      router.push("/");
+    }
+  }, [user, loading, router]);
+
+  if (loading) {
+    return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
+  }
+
+  // Check 3: Physical Render Guard
+  if (user?.email !== process.env.NEXT_PUBLIC_ADMIN_EMAIL) {
+    return null;
+  }
 
   return (
     <div className="flex min-h-screen bg-slate-50 dark:bg-slate-950">

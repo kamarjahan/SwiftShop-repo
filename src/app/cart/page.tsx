@@ -22,8 +22,8 @@ export default function CartPage() {
   }, []);
 
   const subtotal = items.reduce((acc, item) => acc + item.price * item.quantity, 0);
-  const tax = subtotal * 0.08;
-  const baseShipping = subtotal > 1000 ? 0 : 50;
+  const requiresShipping = items.some(item => item.chargeShipping);
+  const baseShipping = requiresShipping && subtotal <= 1000 ? 50 : 0;
 
   // Calculate Discount
   let discountAmount = 0;
@@ -43,7 +43,7 @@ export default function CartPage() {
     }
   }
 
-  const total = subtotal + tax + finalShipping - discountAmount;
+  const total = subtotal + finalShipping - discountAmount;
 
   const handleApplyCoupon = async () => {
     if (!couponCode.trim()) return;
@@ -184,10 +184,7 @@ export default function CartPage() {
                 </div>
               )}
 
-              <div className="flex justify-between text-foreground/70">
-                <span>Tax (8%)</span>
-                <span className="font-bold text-foreground">₹{tax.toFixed(2)}</span>
-              </div>
+              {/* Tax removed as per requirements */}
               <div className="flex justify-between text-foreground/70">
                 <span>Shipping</span>
                 <span className="font-bold text-foreground">

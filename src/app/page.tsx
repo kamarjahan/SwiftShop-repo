@@ -27,7 +27,7 @@ export default function Home() {
       try {
         const [settingsSnap, productsSnap] = await Promise.all([
           getDoc(doc(db, "settings", "home_page")),
-          getDocs(query(collection(db, "products"), limit(4)))
+          getDocs(query(collection(db, "products"), limit(8)))
         ]);
 
         if (settingsSnap.exists()) {
@@ -45,13 +45,7 @@ export default function Home() {
     fetchData();
   }, []);
 
-  if (loading) {
-    return (
-      <div className="min-h-[60vh] flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-foreground/40" />
-      </div>
-    );
-  }
+  // Removed loading block for instant model
 
   // Fallbacks if not set
   const hero = settings?.hero_banner || { enabled: false };
@@ -61,6 +55,9 @@ export default function Home() {
 
   const featuredProduct = products.length > 0 ? products[0] : null;
   const trendingProduct = products.length > 1 ? products[1] : featuredProduct;
+
+  const trendingList = products.slice(0, 4);
+  const bestSellersList = products.length > 4 ? products.slice(4, 8) : products.slice(0, 4);
 
   return (
     <main className="w-full">
@@ -203,6 +200,58 @@ export default function Home() {
           )}
         </motion.div>
       </div>
+
+      {/* Trending Products */}
+      {trendingList.length > 0 && (
+        <div className="container mx-auto px-4 py-8">
+          <div className="flex justify-between items-end mb-6">
+            <h2 className="text-2xl font-black">Trending Products</h2>
+            <Link href="/shop" className="text-sm font-bold text-foreground/60 hover:text-foreground">View All</Link>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+            {trendingList.map(prod => (
+              <Link href={`/product/${prod.id}`} key={prod.id} className="group bg-bento-card border border-bento-border rounded-xl overflow-hidden hover:shadow-[var(--shadow-bento)] transition-all">
+                <div className="aspect-square relative overflow-hidden bg-slate-100 dark:bg-slate-900">
+                  <img src={prod.images?.[0] || ""} alt={prod.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                </div>
+                <div className="p-4">
+                  <h3 className="font-bold text-sm line-clamp-2 mb-1 group-hover:text-blue-500 transition-colors">{prod.name}</h3>
+                  <div className="flex items-center gap-2">
+                    <span className="font-black text-lg">₹{(prod.price || 0).toFixed(2)}</span>
+                    {prod.mrp && <span className="text-xs text-foreground/50 line-through">₹{(prod.mrp).toFixed(2)}</span>}
+                  </div>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Best Sellers */}
+      {bestSellersList.length > 0 && (
+        <div className="container mx-auto px-4 py-8 mb-12">
+          <div className="flex justify-between items-end mb-6">
+            <h2 className="text-2xl font-black">Best Sellers</h2>
+            <Link href="/shop" className="text-sm font-bold text-foreground/60 hover:text-foreground">View All</Link>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+            {bestSellersList.map(prod => (
+              <Link href={`/product/${prod.id}`} key={prod.id} className="group bg-bento-card border border-bento-border rounded-xl overflow-hidden hover:shadow-[var(--shadow-bento)] transition-all">
+                <div className="aspect-square relative overflow-hidden bg-slate-100 dark:bg-slate-900">
+                  <img src={prod.images?.[0] || ""} alt={prod.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                </div>
+                <div className="p-4">
+                  <h3 className="font-bold text-sm line-clamp-2 mb-1 group-hover:text-blue-500 transition-colors">{prod.name}</h3>
+                  <div className="flex items-center gap-2">
+                    <span className="font-black text-lg">₹{(prod.price || 0).toFixed(2)}</span>
+                    {prod.mrp && <span className="text-xs text-foreground/50 line-through">₹{(prod.mrp).toFixed(2)}</span>}
+                  </div>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
     </main>
   );
 }

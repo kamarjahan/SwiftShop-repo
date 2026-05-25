@@ -118,6 +118,9 @@ export default function AdminSupportPage() {
                         {ticket.status}
                       </span>
                     </div>
+                    <p className="text-xs font-bold text-foreground/80 mb-1">
+                      {ticket.userName || 'Unknown'} <span className="font-normal opacity-60">({ticket.userEmail || 'Unknown'})</span>
+                    </p>
                     <p className="text-xs text-foreground/60 line-clamp-2">{ticket.description}</p>
                     <p className="text-[10px] text-foreground/40 mt-2">
                       {ticket.updatedAt?.toDate ? new Date(ticket.updatedAt.toDate()).toLocaleString() : ''}
@@ -146,7 +149,9 @@ export default function AdminSupportPage() {
                   </button>
                   <div>
                     <h2 className="font-bold text-lg">{activeTicket.subject}</h2>
-                    <p className="text-xs text-foreground/60">Ticket ID: {activeTicket.id}</p>
+                    <p className="text-xs text-foreground/60">
+                      From: <span className="font-bold text-foreground/80">{activeTicket.userName || 'Unknown'}</span> ({activeTicket.userEmail || 'Unknown'}) &bull; Ticket ID: {activeTicket.id}
+                    </p>
                   </div>
                 </div>
                 {activeTicket.status === "Open" && (

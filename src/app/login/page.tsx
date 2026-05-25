@@ -29,6 +29,10 @@ function LoginForm() {
       } else {
         await createUserWithEmailAndPassword(auth, email, password);
       }
+      
+      // Prevent redirect loops by setting cookie before navigating
+      const encodedEmail = email ? btoa(email) : "true";
+      document.cookie = `firebase-session=${encodedEmail}; path=/; max-age=86400; samesite=strict`;
       router.push(redirectUrl);
     } catch (err: any) {
       setError(err.message || "An error occurred during authentication.");
@@ -41,7 +45,12 @@ function LoginForm() {
     setLoading(true);
     setError("");
     try {
-      await signInWithPopup(auth, googleProvider);
+      // Prevent redirect loops by setting cookie before navigating
+      // Google popup does not expose the email immediately without assigning the result.
+      // It will fallback to "true" momentarily until AuthContext updates it, but we can capture it.
+      const result = await signInWithPopup(auth, googleProvider);
+      const encodedEmail = result.user.email ? btoa(result.user.email) : "true";
+      document.cookie = `firebase-session=${encodedEmail}; path=/; max-age=86400; samesite=strict`;
       router.push(redirectUrl);
     } catch (err: any) {
       setError(err.message || "Google sign in failed.");

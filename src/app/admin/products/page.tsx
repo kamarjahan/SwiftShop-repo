@@ -9,6 +9,7 @@ import { Plus, Edit, Trash2, Loader2, Search } from "lucide-react";
 export default function ProductsPage() {
   const [products, setProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
 
   const fetchProducts = async () => {
     try {
@@ -44,12 +45,24 @@ export default function ProductsPage() {
           <h1 className="text-3xl font-black">Products</h1>
           <p className="text-foreground/60">Manage your product catalog.</p>
         </div>
-        <Link 
-          href="/admin/products/new" 
-          className="bg-foreground text-background px-4 py-2 rounded-lg font-bold flex items-center gap-2 hover:bg-foreground/90 transition-colors"
-        >
-          <Plus className="w-5 h-5" /> Add Product
-        </Link>
+        <div className="flex gap-4">
+          <div className="relative w-full md:w-64">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-foreground/40" />
+            <input 
+              type="text" 
+              placeholder="Search products..." 
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-10 pr-4 py-2 bg-background border border-bento-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-foreground/20"
+            />
+          </div>
+          <Link 
+            href="/admin/products/new" 
+            className="bg-foreground text-background px-4 py-2 rounded-lg font-bold flex items-center gap-2 hover:bg-foreground/90 transition-colors shrink-0"
+          >
+            <Plus className="w-5 h-5" /> Add Product
+          </Link>
+        </div>
       </div>
 
       <div className="bg-bento-card border border-bento-border rounded-[var(--radius-bento)] shadow-[var(--shadow-bento)] overflow-hidden">
@@ -75,7 +88,12 @@ export default function ProductsPage() {
                 </tr>
               </thead>
               <tbody>
-                {products.map((product) => (
+                {products
+                  .filter(p => 
+                    (p.name?.toLowerCase() || "").includes(searchQuery.toLowerCase()) || 
+                    (p.sku?.toLowerCase() || "").includes(searchQuery.toLowerCase())
+                  )
+                  .map((product) => (
                   <tr key={product.id} className="border-b border-bento-border/50 hover:bg-foreground/5 transition-colors">
                     <td className="px-6 py-4 flex items-center gap-3">
                       <div className="w-10 h-10 rounded bg-slate-100 overflow-hidden">

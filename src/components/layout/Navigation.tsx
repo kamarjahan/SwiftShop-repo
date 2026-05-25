@@ -53,8 +53,8 @@ export default function Navigation() {
         <Link href="/" className="text-xl font-black tracking-tighter">
           Swift<span className="text-slate-500">Shop</span>
         </Link>
-        <div className="flex gap-4 items-center flex-1 ml-4 justify-end">
-          <div className="hidden sm:block flex-1 max-w-[200px]">
+        <div className="flex gap-2 sm:gap-4 items-center flex-1 ml-4 justify-end">
+          <div className="flex-1 max-w-[150px] sm:max-w-[200px]">
             <LiveSearch />
           </div>
           <Link href="/orders" className="relative">
@@ -82,7 +82,7 @@ export default function Navigation() {
             <Search className="w-5 h-5" />
             <span className="text-[10px] font-medium">Explore</span>
           </Link>
-          <Link href="/wishlist" className="flex flex-col items-center gap-1 text-foreground/60 hover:text-foreground transition-colors">
+          <Link href="/account?tab=wishlist" className="flex flex-col items-center gap-1 text-foreground/60 hover:text-foreground transition-colors">
             <Heart className="w-5 h-5" />
             <span className="text-[10px] font-medium">Saved</span>
           </Link>

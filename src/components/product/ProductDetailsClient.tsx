@@ -7,7 +7,9 @@ import { useCart } from "@/store/useCart";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
 import { db } from "@/lib/firebase";
-import { doc, updateDoc, arrayUnion, arrayRemove } from "firebase/firestore";
+import { doc, updateDoc, arrayUnion, arrayRemove, collection, query, where, limit, getDocs } from "firebase/firestore";
+import Link from "next/link";
+import { useEffect } from "react";
 
 export default function ProductDetailsClient({ product }: { product: any }) {
   const [quantity, setQuantity] = useState(1);
@@ -23,12 +25,48 @@ export default function ProductDetailsClient({ product }: { product: any }) {
   const { addItem, toggleCart } = useCart();
   const router = useRouter();
 
+  const [suggestedProduct, setSuggestedProduct] = useState<any>(null);
+
+  useEffect(() => {
+    const fetchSuggested = async () => {
+      if (!product?.category) return;
+      try {
+        const q = query(
+          collection(db, "products"), 
+          where("category", "==", product.category), 
+          limit(2)
+        );
+        const snap = await getDocs(q);
+        const prods = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        const otherProd = prods.find(p => p.id !== product.id);
+        
+        if (otherProd) {
+          setSuggestedProduct(otherProd);
+        } else {
+          const anyQ = query(collection(db, "products"), limit(2));
+          const anySnap = await getDocs(anyQ);
+          const anyProds = anySnap.docs.map(d => ({ id: d.id, ...d.data() }));
+          setSuggestedProduct(anyProds.find(p => p.id !== product.id) || null);
+        }
+      } catch (e) {
+        console.error("Failed to fetch suggested product", e);
+      }
+    };
+    fetchSuggested();
+  }, [product?.category, product?.id]);
+
   // Determine active price based on variant
   const displayPrice = activeVariant && activeVariant.price ? activeVariant.price : product.price;
   
   // Use MRP from product or fallback
   const mrp = product.mrp || displayPrice * 1.2;
   const discountPercent = Math.round(((mrp - displayPrice) / mrp) * 100);
+
+  // Calculate real reviews count and average rating
+  const realReviewsCount = product.reviews?.length || 0;
+  const realAvgRating = realReviewsCount > 0 
+    ? product.reviews.reduce((acc: number, rev: any) => acc + (rev.rating || 0), 0) / realReviewsCount 
+    : 0;
 
   const handleShare = () => {
     navigator.clipboard.writeText(window.location.href);
@@ -65,7 +103,8 @@ export default function ProductDetailsClient({ product }: { product: any }) {
       name: `${product.name} ${activeVariant ? `(${activeVariant.name})` : ""}`,
       price: displayPrice,
       quantity,
-      image: product.images?.[0] || ""
+      image: product.images?.[0] || "",
+      chargeShipping: product.chargeShipping ?? false
     };
     addItem(itemToAdd);
     toggleCart();
@@ -77,7 +116,8 @@ export default function ProductDetailsClient({ product }: { product: any }) {
       name: `${product.name} ${activeVariant ? `(${activeVariant.name})` : ""}`,
       price: displayPrice,
       quantity,
-      image: product.images?.[0] || ""
+      image: product.images?.[0] || "",
+      chargeShipping: product.chargeShipping ?? false
     };
     addItem(itemToAdd);
     router.push("/checkout"); // Assuming there is a checkout route
@@ -122,11 +162,11 @@ export default function ProductDetailsClient({ product }: { product: any }) {
         <div className="flex items-center gap-2 mb-4">
           <div className="flex items-center text-yellow-500">
             {[...Array(5)].map((_, i) => (
-              <Star key={i} className={`w-4 h-4 ${i < Math.floor(product.rating || 4.5) ? "fill-currentColor" : "text-foreground/20"}`} />
+              <Star key={i} className={`w-4 h-4 ${i < Math.floor(realAvgRating) ? "fill-currentColor" : "text-foreground/20"}`} />
             ))}
           </div>
           <span className="text-sm font-medium text-blue-600 hover:underline cursor-pointer">
-            {product.reviewsCount || 128} ratings
+            {realReviewsCount} {realReviewsCount === 1 ? 'rating' : 'ratings'}
           </span>
         </div>
       </div>
@@ -249,7 +289,7 @@ export default function ProductDetailsClient({ product }: { product: any }) {
           </div>
         ) : (
           <div className="space-y-4">
-            {product.reviews.map((review: any, idx: number) => (
+            {product.reviews.slice(0, 1).map((review: any, idx: number) => (
               <div key={idx} className="bg-bento-card border border-bento-border p-4 rounded-xl shadow-sm">
                 <div className="flex justify-between items-start mb-2">
                   <div>
@@ -276,6 +316,29 @@ export default function ProductDetailsClient({ product }: { product: any }) {
                 )}
               </div>
             ))}
+            
+            {/* Suggested Product in place of 2nd review */}
+            {suggestedProduct && (
+              <div className="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/10 dark:to-indigo-900/10 border border-blue-100 dark:border-blue-800/30 p-4 rounded-xl shadow-sm mt-4">
+                <p className="text-xs font-bold text-blue-600 dark:text-blue-400 uppercase tracking-wider mb-3">Suggested Product</p>
+                <Link href={`/product/${suggestedProduct.id}`} className="flex items-center gap-4 group">
+                  <div className="w-16 h-16 rounded-lg bg-white dark:bg-slate-800 overflow-hidden shrink-0 border border-black/5">
+                    <img 
+                      src={suggestedProduct.images?.[0] || ""} 
+                      alt={suggestedProduct.name} 
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                    />
+                  </div>
+                  <div className="flex-1">
+                    <h4 className="font-bold text-sm group-hover:text-blue-600 transition-colors line-clamp-1">{suggestedProduct.name}</h4>
+                    <div className="flex items-center gap-2 mt-1">
+                      <span className="font-black text-sm">₹{(suggestedProduct.price || 0).toFixed(2)}</span>
+                      <span className="text-xs text-foreground/50 line-through">₹{((suggestedProduct.price || 0) * 1.2).toFixed(2)}</span>
+                    </div>
+                  </div>
+                </Link>
+              </div>
+            )}
           </div>
         )}
       </div>

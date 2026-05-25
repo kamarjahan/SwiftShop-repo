@@ -4,11 +4,12 @@ import { useEffect, useState } from "react";
 import { collection, getDocs, deleteDoc, doc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import Link from "next/link";
-import { Plus, Trash2, Loader2, Tag, Percent } from "lucide-react";
+import { Plus, Trash2, Loader2, Tag, Percent, Search } from "lucide-react";
 
 export default function CouponsPage() {
   const [coupons, setCoupons] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
 
   const fetchCoupons = async () => {
     try {
@@ -49,14 +50,26 @@ export default function CouponsPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-black">Coupons</h1>
-          <p className="text-foreground/60">Manage your promotional codes.</p>
+          <p className="text-foreground/60">Manage discount codes and promotions.</p>
         </div>
-        <Link 
-          href="/admin/coupons/new" 
-          className="bg-foreground text-background px-4 py-2 rounded-lg font-bold flex items-center gap-2 hover:bg-foreground/90 transition-colors"
-        >
-          <Plus className="w-5 h-5" /> Add Coupon
-        </Link>
+        <div className="flex gap-4">
+          <div className="relative w-full md:w-64">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-foreground/40" />
+            <input 
+              type="text" 
+              placeholder="Search coupons..." 
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-10 pr-4 py-2 bg-background border border-bento-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-foreground/20"
+            />
+          </div>
+          <Link 
+            href="/admin/coupons/new" 
+            className="bg-foreground text-background px-4 py-2 rounded-lg font-bold flex items-center gap-2 hover:bg-foreground/90 transition-colors shrink-0"
+          >
+            <Plus className="w-5 h-5" /> Create Coupon
+          </Link>
+        </div>
       </div>
 
       <div className="bg-bento-card border border-bento-border rounded-[var(--radius-bento)] shadow-[var(--shadow-bento)] overflow-hidden">
@@ -82,7 +95,9 @@ export default function CouponsPage() {
                 </tr>
               </thead>
               <tbody>
-                {coupons.map((coupon) => {
+                {coupons
+                  .filter(c => (c.code?.toLowerCase() || "").includes(searchQuery.toLowerCase()))
+                  .map((coupon) => {
                   const now = new Date();
                   const start = new Date(coupon.startDate);
                   const end = new Date(coupon.endDate);

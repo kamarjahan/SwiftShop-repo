@@ -3,7 +3,7 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { User, onAuthStateChanged } from "firebase/auth";
 import { auth, db } from "@/lib/firebase";
-import { doc, getDoc, setDoc } from "firebase/firestore";
+import { doc, getDoc, setDoc, onSnapshot } from "firebase/firestore";
 
 export interface Address {
   fullName: string;
@@ -47,42 +47,51 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+    let unsubscribeDoc: () => void;
+
+    const unsubscribeAuth = onAuthStateChanged(auth, async (firebaseUser) => {
       setUser(firebaseUser);
       
       if (firebaseUser) {
         // Set an arbitrary cookie to tell Next.js middleware that the user is authed.
         // For production, use Firebase Session Cookies generated via Cloud Functions.
-        document.cookie = `firebase-session=true; path=/; max-age=86400; secure; samesite=strict`;
+        const encodedEmail = firebaseUser.email ? btoa(firebaseUser.email) : "true";
+        document.cookie = `firebase-session=${encodedEmail}; path=/; max-age=86400; samesite=strict`;
 
         const userDocRef = doc(db, "users", firebaseUser.uid);
-        const userDoc = await getDoc(userDocRef);
         
-        if (userDoc.exists()) {
-          setUserData(userDoc.data() as UserMetadata);
-        } else {
-          const newUserData: UserMetadata = {
-            email: firebaseUser.email,
-            displayName: firebaseUser.displayName,
-            photoURL: firebaseUser.photoURL,
-            role: "customer",
-            createdAt: new Date().toISOString(),
-          };
-          try {
-            await setDoc(userDocRef, newUserData);
-            setUserData(newUserData);
-          } catch (error) {
-            console.error("Error creating user doc", error);
+        unsubscribeDoc = onSnapshot(userDocRef, async (docSnap) => {
+          if (docSnap.exists()) {
+            setUserData(docSnap.data() as UserMetadata);
+          } else {
+            const newUserData: UserMetadata = {
+              email: firebaseUser.email,
+              displayName: firebaseUser.displayName,
+              photoURL: firebaseUser.photoURL,
+              role: "customer",
+              createdAt: new Date().toISOString(),
+            };
+            try {
+              await setDoc(userDocRef, newUserData);
+              setUserData(newUserData);
+            } catch (error) {
+              console.error("Error creating user doc", error);
+            }
           }
-        }
+          setLoading(false);
+        });
       } else {
         setUserData(null);
         document.cookie = `firebase-session=; path=/; max-age=0;`; // Clear cookie
+        setLoading(false);
+        if (unsubscribeDoc) unsubscribeDoc();
       }
-      setLoading(false);
     });
 
-    return () => unsubscribe();
+    return () => {
+      unsubscribeAuth();
+      if (unsubscribeDoc) unsubscribeDoc();
+    };
   }, []);
 
   return (

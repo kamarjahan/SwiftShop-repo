@@ -58,8 +58,8 @@ export default function CheckoutPage() {
 
   // Calculate totals
   const subtotal = items.reduce((acc, item) => acc + item.price * item.quantity, 0);
-  const tax = subtotal * 0.08;
-  let finalShipping = subtotal > 1000 ? 0 : 50;
+  const requiresShipping = items.some(item => item.chargeShipping);
+  let finalShipping = requiresShipping && subtotal <= 1000 ? 50 : 0;
   let discountAmount = 0;
 
   if (appliedCoupon) {
@@ -73,7 +73,7 @@ export default function CheckoutPage() {
     if (discountAmount > subtotal) discountAmount = subtotal;
   }
 
-  const total = subtotal + tax + finalShipping - discountAmount;
+  const total = subtotal + finalShipping - discountAmount;
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setAddress({ ...address, [e.target.name]: e.target.value });
@@ -84,7 +84,6 @@ export default function CheckoutPage() {
       userId: user?.uid || "guest",
       items,
       subtotal,
-      tax,
       shipping: finalShipping,
       discountAmount,
       total,
@@ -314,10 +313,7 @@ export default function CheckoutPage() {
                 </div>
               )}
 
-              <div className="flex justify-between text-foreground/70">
-                <span>Tax (8%)</span>
-                <span className="font-bold text-foreground">₹{tax.toFixed(2)}</span>
-              </div>
+              {/* Tax removed as per requirements */}
               <div className="flex justify-between text-foreground/70">
                 <span>Shipping</span>
                 <span className="font-bold text-foreground">

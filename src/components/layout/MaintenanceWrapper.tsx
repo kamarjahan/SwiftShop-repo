@@ -27,15 +27,7 @@ export default function MaintenanceWrapper({ children }: { children: React.React
     fetchMaintenance();
   }, []);
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <Loader2 className="w-8 h-8 animate-spin text-foreground/40" />
-      </div>
-    );
-  }
-
-  // Allow access to admin panel even if maintenance mode is enabled
+  // Removed loading blocking so the site doesn't get stuck in a loading loop on refresh  // Allow access to admin panel even if maintenance mode is enabled
   if (maintenance.enabled && !pathname.startsWith("/admin")) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-background text-foreground p-6 text-center">

@@ -4,6 +4,7 @@ import { Product } from '@/lib/mockData';
 
 export interface CartItem extends Product {
   quantity: number;
+  chargeShipping?: boolean;
 }
 
 interface CartStore {
