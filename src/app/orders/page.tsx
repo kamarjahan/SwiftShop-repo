@@ -8,6 +8,7 @@ import { collection, query, where, orderBy, getDocs, updateDoc, doc, addDoc, ser
 import Link from "next/link";
 import { Package, ChevronDown, ChevronUp, Loader2, Star, RefreshCw, XCircle } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import OrderTimeline from "@/components/OrderTimeline";
 
 export default function OrdersPage() {
   const { user, userData, loading } = useAuth();
@@ -191,6 +192,15 @@ export default function OrdersPage() {
                   >
                     <div className="p-4 sm:p-6 bg-background/50">
                       
+                      {/* Visual Order Timeline */}
+                      <div className="mb-8 hidden sm:block">
+                        <OrderTimeline status={order.status} />
+                      </div>
+                      <div className="mb-6 sm:hidden border border-bento-border bg-bento-card p-4 rounded-xl">
+                        <h4 className="font-black text-sm mb-4 uppercase tracking-wide">Tracking</h4>
+                        <OrderTimeline status={order.status} />
+                      </div>
+
                       {/* Products List */}
                       <h4 className="font-black text-sm mb-4 uppercase tracking-wide">Items</h4>
                       <div className="space-y-4 mb-6">
