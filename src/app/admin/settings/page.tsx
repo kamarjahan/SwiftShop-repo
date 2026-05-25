@@ -9,13 +9,14 @@ import { Loader2, Save, Settings as SettingsIcon } from "lucide-react";
 export default function SettingsPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [successMsg, setSuccessMsg] = useState("");
   
   const [formData, setFormData] = useState({
-    legal: "",
     privacyPolicy: "",
     termsAndConditions: "",
+    returnCancellation: "",
+    refundPolicy: "",
     contactUs: "",
+    faq: "",
   });
 
   useEffect(() => {
@@ -24,11 +25,14 @@ export default function SettingsPage() {
         const docRef = doc(db, "settings", "legal_pages");
         const docSnap = await getDoc(docRef);
         if (docSnap.exists()) {
+          const data = docSnap.data();
           setFormData({
-            legal: docSnap.data().legal || "",
-            privacyPolicy: docSnap.data().privacyPolicy || "",
-            termsAndConditions: docSnap.data().termsAndConditions || "",
-            contactUs: docSnap.data().contactUs || "",
+            privacyPolicy: data.privacyPolicy || "",
+            termsAndConditions: data.termsAndConditions || "",
+            returnCancellation: data.returnCancellation || "",
+            refundPolicy: data.refundPolicy || "",
+            contactUs: data.contactUs || "",
+            faq: data.faq || "",
           });
         }
       } catch (error) {
@@ -47,14 +51,12 @@ export default function SettingsPage() {
 
   const handleSave = async () => {
     setSaving(true);
-    setSuccessMsg("");
     try {
       await setDoc(doc(db, "settings", "legal_pages"), {
         ...formData,
         updatedAt: serverTimestamp()
       }, { merge: true });
-      setSuccessMsg("Settings saved successfully!");
-      setTimeout(() => setSuccessMsg(""), 3000);
+      toast.success("Settings saved successfully!");
     } catch (error) {
       console.error("Error saving settings", error);
       toast.error("Failed to save settings.");
@@ -71,6 +73,21 @@ export default function SettingsPage() {
     );
   }
 
+  const renderTextarea = (label: string, name: keyof typeof formData, description: string) => (
+    <div className="space-y-3 border-b border-bento-border pb-8 last:border-0 last:pb-0">
+      <label className="block font-black text-xl">{label}</label>
+      <p className="text-sm text-foreground/60 mb-2">{description}</p>
+      <textarea 
+        name={name}
+        value={formData[name]}
+        onChange={handleChange}
+        rows={10}
+        className="w-full bg-background border border-bento-border rounded-xl p-4 text-sm focus:outline-none focus:ring-2 focus:ring-foreground/20 font-mono"
+        placeholder={`Enter Markdown for ${label}...`}
+      />
+    </div>
+  );
+
   return (
     <div className="max-w-4xl mx-auto space-y-6">
       <div className="flex items-center justify-between">
@@ -78,7 +95,7 @@ export default function SettingsPage() {
           <h1 className="text-3xl font-black flex items-center gap-3">
             <SettingsIcon className="w-8 h-8 text-foreground" /> Page Settings
           </h1>
-          <p className="text-foreground/60">Manage your legal, privacy, terms, and contact content.</p>
+          <p className="text-foreground/60">Manage your legal policies and public pages using Markdown.</p>
         </div>
         <button 
           onClick={handleSave}
@@ -90,66 +107,17 @@ export default function SettingsPage() {
         </button>
       </div>
 
-      {successMsg && (
-        <div className="bg-green-500/10 border border-green-500 text-green-600 px-4 py-3 rounded-xl font-bold">
-          {successMsg}
-        </div>
-      )}
-
       <div className="bg-bento-card border border-bento-border rounded-[var(--radius-bento)] shadow-[var(--shadow-bento)] p-6 md:p-8 space-y-8">
+        <div className="bg-blue-500/10 text-blue-600 border border-blue-500/20 p-4 rounded-xl text-sm font-medium mb-6">
+          <strong>Tip:</strong> You can use advanced Markdown formatting! Use <code className="bg-blue-500/20 px-1 rounded">#</code> for headers, <code className="bg-blue-500/20 px-1 rounded">**bold**</code> for bold text, and <code className="bg-blue-500/20 px-1 rounded">-</code> for bullet points.
+        </div>
         
-        <div className="space-y-3">
-          <label className="block font-bold text-lg">Contact Us</label>
-          <p className="text-xs text-foreground/60">Enter your contact information, physical address, support email, and phone numbers.</p>
-          <textarea 
-            name="contactUs"
-            value={formData.contactUs}
-            onChange={handleChange}
-            rows={5}
-            className="w-full bg-background border border-bento-border rounded-xl p-4 text-sm focus:outline-none focus:ring-2 focus:ring-foreground/20"
-            placeholder="E.g., Contact us at support@swiftshop.com..."
-          />
-        </div>
-
-        <div className="space-y-3">
-          <label className="block font-bold text-lg">Privacy Policy</label>
-          <p className="text-xs text-foreground/60">Explain how you collect, use, and protect customer data.</p>
-          <textarea 
-            name="privacyPolicy"
-            value={formData.privacyPolicy}
-            onChange={handleChange}
-            rows={8}
-            className="w-full bg-background border border-bento-border rounded-xl p-4 text-sm focus:outline-none focus:ring-2 focus:ring-foreground/20"
-            placeholder="Your privacy policy content here..."
-          />
-        </div>
-
-        <div className="space-y-3">
-          <label className="block font-bold text-lg">Terms and Conditions</label>
-          <p className="text-xs text-foreground/60">Set the rules and guidelines that users must agree to in order to use your service.</p>
-          <textarea 
-            name="termsAndConditions"
-            value={formData.termsAndConditions}
-            onChange={handleChange}
-            rows={8}
-            className="w-full bg-background border border-bento-border rounded-xl p-4 text-sm focus:outline-none focus:ring-2 focus:ring-foreground/20"
-            placeholder="Your terms and conditions content here..."
-          />
-        </div>
-
-        <div className="space-y-3">
-          <label className="block font-bold text-lg">Legal / Other Policies</label>
-          <p className="text-xs text-foreground/60">Any other legal disclaimers, refund policies, or shipping policies.</p>
-          <textarea 
-            name="legal"
-            value={formData.legal}
-            onChange={handleChange}
-            rows={8}
-            className="w-full bg-background border border-bento-border rounded-xl p-4 text-sm focus:outline-none focus:ring-2 focus:ring-foreground/20"
-            placeholder="Legal information or refund policy..."
-          />
-        </div>
-
+        {renderTextarea("Privacy Policy", "privacyPolicy", "Explain how you collect, use, and protect customer data.")}
+        {renderTextarea("Terms & Conditions", "termsAndConditions", "Set the rules and guidelines that users must agree to in order to use your service.")}
+        {renderTextarea("Return & Cancellation Policy", "returnCancellation", "Explain your rules for when customers want to cancel an order or return a product.")}
+        {renderTextarea("Refund Policy", "refundPolicy", "Explain the conditions under which customers receive refunds, and how long it takes.")}
+        {renderTextarea("Contact Us", "contactUs", "Enter your contact information, physical address, support email, and phone numbers.")}
+        {renderTextarea("FAQ", "faq", "Frequently Asked Questions. Use headers (e.g., ### Question) and paragraphs for answers.")}
       </div>
     </div>
   );

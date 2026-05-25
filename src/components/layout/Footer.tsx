@@ -33,18 +33,19 @@ export default function Footer() {
           <div>
             <h4 className="font-bold mb-4">Support</h4>
             <ul className="space-y-2 text-sm text-foreground/60">
-              <li><Link href="/faq" className="hover:text-foreground transition-colors">FAQ</Link></li>
+              <li><Link href="/policies/faq" className="hover:text-foreground transition-colors">FAQ</Link></li>
               <li><Link href="/track-order" className="hover:text-foreground transition-colors">Track Order</Link></li>
-              <li><Link href="/returns" className="hover:text-foreground transition-colors">Returns</Link></li>
-              <li><Link href="/contact" className="hover:text-foreground transition-colors">Contact Us</Link></li>
+              <li><Link href="/policies/return-cancellation" className="hover:text-foreground transition-colors">Returns & Cancellations</Link></li>
+              <li><Link href="/policies/contact" className="hover:text-foreground transition-colors">Contact Us</Link></li>
             </ul>
           </div>
 
           <div>
             <h4 className="font-bold mb-4">Legal</h4>
             <ul className="space-y-2 text-sm text-foreground/60">
-              <li><Link href="/privacy" className="hover:text-foreground transition-colors">Privacy Policy</Link></li>
-              <li><Link href="/terms" className="hover:text-foreground transition-colors">Terms of Service</Link></li>
+              <li><Link href="/policies/privacy" className="hover:text-foreground transition-colors">Privacy Policy</Link></li>
+              <li><Link href="/policies/terms" className="hover:text-foreground transition-colors">Terms of Service</Link></li>
+              <li><Link href="/policies/refund" className="hover:text-foreground transition-colors">Refund Policy</Link></li>
             </ul>
           </div>
         </div>
