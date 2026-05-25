@@ -7,7 +7,7 @@ import { auth, db } from "@/lib/firebase";
 import { signOut, sendPasswordResetEmail, updateProfile as updateAuthProfile } from "firebase/auth";
 import { collection, query, where, orderBy, limit, getDocs, doc, setDoc, updateDoc, getDoc } from "firebase/firestore";
 import { motion, AnimatePresence } from "framer-motion";
-import { User, LogOut, Package, Heart, LayoutDashboard, MapPin, Edit, Plus, Trash2, Loader2, AlertCircle } from "lucide-react";
+import { User, LogOut, Package, Heart, LayoutDashboard, MapPin, Edit, Plus, Trash2, Loader2, AlertCircle, Award } from "lucide-react";
 import Link from "next/link";
 import SupportTab from "@/components/account/SupportTab";
 
@@ -259,7 +259,19 @@ export default function AccountPage() {
             {/* Dashboard Tab */}
             {activeTab === 'dashboard' && (
               <motion.div key="dashboard" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="space-y-6">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  <div className="bg-gradient-to-br from-yellow-500/10 to-orange-500/10 border border-yellow-500/20 p-6 rounded-2xl shadow-[var(--shadow-bento)] relative overflow-hidden">
+                    <div className="flex items-center justify-between mb-2 relative z-10">
+                      <h3 className="font-bold text-yellow-700 dark:text-yellow-400">Loyalty Points</h3>
+                      <Award className="w-5 h-5 text-yellow-600 dark:text-yellow-500" />
+                    </div>
+                    <p className="text-3xl font-black text-yellow-800 dark:text-yellow-300 relative z-10">{userData?.loyaltyPoints || 0}</p>
+                    <div className="mt-4 relative z-10">
+                      <button disabled className="w-full text-xs font-bold bg-yellow-500/20 text-yellow-700 dark:text-yellow-400 py-2 rounded-lg cursor-not-allowed flex items-center justify-center gap-2">
+                        Redeem Options Coming Soon
+                      </button>
+                    </div>
+                  </div>
                   <div className="bg-bento-card border border-bento-border p-6 rounded-2xl shadow-[var(--shadow-bento)]">
                     <div className="flex items-center justify-between mb-2">
                       <h3 className="font-bold text-foreground/70">Total Orders</h3>

@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import toast from 'react-hot-toast';
 import { useAuth } from "@/contexts/AuthContext";
 import { db } from "@/lib/firebase";
-import { collection, query, where, orderBy, getDocs, updateDoc, doc, addDoc, serverTimestamp, arrayUnion, getDoc } from "firebase/firestore";
+import { collection, query, where, orderBy, getDocs, updateDoc, doc, addDoc, serverTimestamp, arrayUnion, getDoc, increment } from "firebase/firestore";
 import Link from "next/link";
 import { Package, ChevronDown, ChevronUp, Loader2, Star, RefreshCw, XCircle } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -91,13 +91,29 @@ export default function OrdersPage() {
 
       const prodRef = doc(db, "products", productId);
       
+      // Check if user has already reviewed this product
+      const prodSnap = await getDoc(prodRef);
+      if (prodSnap.exists()) {
+        const prodData = prodSnap.data();
+        const existingReviews = prodData.reviews || [];
+        if (existingReviews.some((r: any) => r.userId === user.uid)) {
+          toast.error("You have already reviewed this product.");
+          return;
+        }
+      }
+      
       // Update the reviews array and potentially recalculate average rating
       // For simplicity, we just push to the array. A cloud function is better for aggregates.
       await updateDoc(prodRef, {
         reviews: arrayUnion(newReview)
       });
 
-      toast.success("Review submitted successfully!");
+      // Award Loyalty Points for leaving a review (50 points)
+      await updateDoc(doc(db, "users", user.uid), {
+        loyaltyPoints: increment(50)
+      });
+
+      toast.success("Review submitted successfully! +50 Points earned.");
       setReviewModalOpen(false);
       setReviewComment("");
       setReviewRating(5);

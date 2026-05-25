@@ -27,6 +27,7 @@ export interface UserMetadata {
   wishlist?: string[];
   addresses?: Address[];
   address?: Address;
+  loyaltyPoints?: number;
 }
 
 interface AuthContextType {
@@ -70,6 +71,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
               photoURL: firebaseUser.photoURL,
               role: "customer",
               createdAt: new Date().toISOString(),
+              loyaltyPoints: 0
             };
             try {
               await setDoc(userDocRef, newUserData);

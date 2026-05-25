@@ -7,6 +7,7 @@ import { db } from "@/lib/firebase";
 import Link from "next/link";
 import { Search, Star } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { executeSmartSearch } from "@/lib/smartSearch";
 
 function SearchResults() {
   const searchParams = useSearchParams();
@@ -26,12 +27,8 @@ function SearchResults() {
         const snap = await getDocs(collection(db, "products"));
         const data = snap.docs.map(d => ({ id: d.id, ...d.data() }));
 
-        const filtered = data.filter((p: any) => 
-          (p.name?.toLowerCase() || "").includes(query.toLowerCase()) || 
-          (p.category?.toLowerCase() || "").includes(query.toLowerCase()) ||
-          (p.description?.toLowerCase() || "").includes(query.toLowerCase())
-        );
-        setResults(filtered);
+        const smartResults = executeSmartSearch(data, query);
+        setResults(smartResults);
       } catch (e) {
         console.error("Search error", e);
       } finally {

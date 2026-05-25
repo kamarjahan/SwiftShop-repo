@@ -5,7 +5,7 @@ import toast from 'react-hot-toast';
 import { useCart } from "@/store/useCart";
 import { useAuth } from "@/contexts/AuthContext";
 import { useRouter } from "next/navigation";
-import { collection, addDoc, serverTimestamp, doc, setDoc } from "firebase/firestore";
+import { collection, addDoc, serverTimestamp, doc, setDoc, updateDoc, increment } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import Script from "next/script";
 import { Loader2, ArrowRight, ShieldCheck, Tag } from "lucide-react";
@@ -102,6 +102,16 @@ export default function CheckoutPage() {
     // Save address if requested and user is logged in
     if (saveAddress && user) {
       await setDoc(doc(db, "users", user.uid), { address }, { merge: true });
+    }
+
+    // Award Loyalty Points (1 point per ₹5 spent)
+    if (user) {
+      const earnedPoints = Math.floor(total / 5);
+      if (earnedPoints > 0) {
+        await setDoc(doc(db, "users", user.uid), { 
+          loyaltyPoints: increment(earnedPoints) 
+        }, { merge: true });
+      }
     }
 
     return docRef.id;
