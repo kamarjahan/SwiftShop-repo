@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import toast from 'react-hot-toast';
 import { useCart } from "@/store/useCart";
 import { useAuth } from "@/contexts/AuthContext";
 import { useRouter } from "next/navigation";
@@ -123,7 +124,7 @@ export default function CheckoutPage() {
         router.push("/checkout/success");
       } catch (err) {
         console.error(err);
-        alert("Error placing order. Please try again.");
+        toast.error("Error placing order. Please try again.");
         setLoading(false);
       }
     } else {
@@ -165,12 +166,12 @@ export default function CheckoutPage() {
                 clearCart();
                 router.push("/checkout/success");
               } else {
-                alert("Payment verification failed.");
+                toast.error("Payment verification failed.");
                 setLoading(false);
               }
             } catch (err) {
               console.error(err);
-              alert("Error verifying payment.");
+              toast.error("Error verifying payment.");
               setLoading(false);
             }
           },
@@ -184,13 +185,13 @@ export default function CheckoutPage() {
 
         const rzp = new (window as any).Razorpay(options);
         rzp.on('payment.failed', function (response: any){
-           alert(response.error.description);
+           toast.error(response.error.description);
            setLoading(false);
         });
         rzp.open();
       } catch (error) {
         console.error(error);
-        alert("Error initiating payment.");
+        toast.error("Error initiating payment.");
         setLoading(false);
       }
     }

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import toast from 'react-hot-toast';
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { useRouter } from "next/navigation";
@@ -31,7 +32,7 @@ export default function CreateCouponPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!code.trim() || !startDate || !endDate) {
-      alert("Please fill in the required fields (Code, Start Date, End Date).");
+      toast.error("Please fill in the required fields (Code, Start Date, End Date).");
       return;
     }
     
@@ -57,7 +58,7 @@ export default function CreateCouponPage() {
       router.push("/admin/coupons");
     } catch (error) {
       console.error("Error creating coupon:", error);
-      alert("Failed to create coupon.");
+      toast.error("Failed to create coupon.");
     } finally {
       setLoading(false);
     }

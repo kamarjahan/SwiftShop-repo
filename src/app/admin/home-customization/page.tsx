@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import toast from 'react-hot-toast';
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { Loader2, Save } from "lucide-react";
@@ -38,10 +39,10 @@ export default function HomeCustomization() {
     setSaving(true);
     try {
       await setDoc(doc(db, "settings", "home_page"), settings, { merge: true });
-      alert("Settings saved successfully!");
+      toast.success("Settings saved successfully!");
     } catch (e) {
       console.error(e);
-      alert("Failed to save settings.");
+      toast.error("Failed to save settings.");
     } finally {
       setSaving(false);
     }

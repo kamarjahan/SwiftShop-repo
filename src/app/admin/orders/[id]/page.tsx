@@ -3,6 +3,7 @@
 export const runtime = "edge";
 
 import { useState, useEffect } from "react";
+import toast from 'react-hot-toast';
 import { db } from "@/lib/firebase";
 import { doc, getDoc, updateDoc, collection, query, where, getDocs } from "firebase/firestore";
 import Link from "next/link";
@@ -86,10 +87,10 @@ export default function AdminOrderDetailsPage({ params }: { params: Promise<{ id
         trackingId: trackingId || null,
       });
       setOrder({ ...order, status, trackingId });
-      alert("Order updated successfully!");
+      toast.success("Order updated successfully!");
     } catch (err) {
       console.error(err);
-      alert("Failed to update order.");
+      toast.error("Failed to update order.");
     } finally {
       setIsUpdating(false);
     }
@@ -113,7 +114,7 @@ export default function AdminOrderDetailsPage({ params }: { params: Promise<{ id
       }
     } catch (err) {
       console.error(err);
-      alert("Action failed.");
+      toast.error("Action failed.");
     } finally {
       setIsUpdating(false);
     }

@@ -3,6 +3,7 @@
 export const runtime = "edge";
 
 import { useState, useEffect } from "react";
+import toast from 'react-hot-toast';
 import { doc, getDoc, updateDoc, collection, getDocs } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { useRouter, useParams } from "next/navigation";
@@ -84,7 +85,7 @@ export default function EditProductPage() {
             })));
           }
         } else {
-          alert("Product not found");
+          toast.error("Product not found");
           router.push("/admin/products");
         }
       } catch (error) {
@@ -180,7 +181,7 @@ export default function EditProductPage() {
       router.push("/admin/products");
     } catch (error) {
       console.error("Error updating product:", error);
-      alert("Failed to update product.");
+      toast.error("Failed to update product.");
     } finally {
       setLoading(false);
     }

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import toast from 'react-hot-toast';
 import { useAuth } from "@/contexts/AuthContext";
 import { db } from "@/lib/firebase";
 import { collection, query, where, orderBy, getDocs, updateDoc, doc, addDoc, serverTimestamp, arrayUnion, getDoc } from "firebase/firestore";
@@ -52,10 +53,10 @@ export default function OrdersPage() {
     try {
       await updateDoc(doc(db, "orders", orderId), { status: "Cancellation Requested" });
       setOrders(prev => prev.map(o => o.id === orderId ? { ...o, status: "Cancellation Requested" } : o));
-      alert("Cancellation request sent.");
+      toast("Cancellation request sent.");
     } catch (err) {
       console.error(err);
-      alert("Failed to request cancellation.");
+      toast.error("Failed to request cancellation.");
     }
   };
 
@@ -80,13 +81,13 @@ export default function OrdersPage() {
         reviews: arrayUnion(newReview)
       });
 
-      alert("Review submitted successfully!");
+      toast.success("Review submitted successfully!");
       setReviewModalOpen(false);
       setReviewComment("");
       setReviewRating(5);
     } catch (err) {
       console.error(err);
-      alert("Failed to submit review.");
+      toast.error("Failed to submit review.");
     }
   };
 
@@ -109,12 +110,12 @@ export default function OrdersPage() {
       
       setOrders(prev => prev.map(o => o.id === returnOrder.id ? { ...o, status: newStatus } : o));
       
-      alert(`${returnType === 'return' ? 'Return' : 'Replacement'} requested successfully!`);
+      toast.success(`${returnType === 'return' ? 'Return' : 'Replacement'} requested successfully!`);
       setReturnModalOpen(false);
       setReturnReason("");
     } catch (err) {
       console.error(err);
-      alert("Failed to process request.");
+      toast.error("Failed to process request.");
     }
   };
 

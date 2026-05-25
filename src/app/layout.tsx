@@ -7,6 +7,7 @@ import PageWrapper from "@/components/layout/PageWrapper";
 import { AuthProvider } from "@/contexts/AuthContext";
 import CartDrawer from "@/components/cart/CartDrawer";
 import MaintenanceWrapper from "@/components/layout/MaintenanceWrapper";
+import { Toaster } from "react-hot-toast";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -52,6 +53,19 @@ export default function RootLayout({
           <MaintenanceWrapper>
             <Navigation />
             <CartDrawer />
+            <Toaster 
+              position="top-center" 
+              toastOptions={{ 
+                duration: 4000,
+                style: {
+                  background: 'var(--bento-card)',
+                  color: 'var(--foreground)',
+                  border: '1px solid var(--bento-border)',
+                  borderRadius: '12px',
+                  fontWeight: 'bold',
+                }
+              }} 
+            />
             <PageWrapper>{children}</PageWrapper>
             <Footer />
           </MaintenanceWrapper>

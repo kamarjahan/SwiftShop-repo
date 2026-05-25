@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import toast from 'react-hot-toast';
 import { collection, query, where, orderBy, onSnapshot, addDoc, serverTimestamp, doc, updateDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { Loader2, Plus, MessageSquare, Send, ArrowLeft } from "lucide-react";
@@ -68,7 +69,7 @@ export default function SupportTab({ user }: { user: any }) {
       setDescription("");
     } catch (err) {
       console.error(err);
-      alert("Failed to create ticket.");
+      toast.error("Failed to create ticket.");
     } finally {
       setSubmitting(false);
     }

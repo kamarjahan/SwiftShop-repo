@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import toast from 'react-hot-toast';
 import { collection, getDocs, deleteDoc, doc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import Link from "next/link";
@@ -34,7 +35,7 @@ export default function CouponsPage() {
       setCoupons(prev => prev.filter(c => c.id !== id));
     } catch (error) {
       console.error("Error deleting coupon", error);
-      alert("Failed to delete coupon.");
+      toast.error("Failed to delete coupon.");
     }
   };
 

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import toast from 'react-hot-toast';
 import { collection, getDocs, deleteDoc, doc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import Link from "next/link";
@@ -34,7 +35,7 @@ export default function ProductsPage() {
       setProducts(prev => prev.filter(p => p.id !== id));
     } catch (error) {
       console.error("Error deleting product", error);
-      alert("Failed to delete product.");
+      toast.error("Failed to delete product.");
     }
   };
 

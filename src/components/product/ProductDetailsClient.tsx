@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import toast from 'react-hot-toast';
 import { motion } from "framer-motion";
 import { Star, Truck, Shield, Heart, Share2, Check, Minus, Plus } from "lucide-react";
 import { useCart } from "@/store/useCart";
@@ -76,7 +77,7 @@ export default function ProductDetailsClient({ product }: { product: any }) {
 
   const toggleWishlist = async () => {
     if (!user) {
-      alert("Please login to add to wishlist");
+      toast("Please login to add to wishlist");
       router.push("/login");
       return;
     }

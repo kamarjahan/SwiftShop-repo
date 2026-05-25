@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import toast from 'react-hot-toast';
 import { doc, getDoc, setDoc, serverTimestamp } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { Loader2, Save, Settings as SettingsIcon } from "lucide-react";
@@ -56,7 +57,7 @@ export default function SettingsPage() {
       setTimeout(() => setSuccessMsg(""), 3000);
     } catch (error) {
       console.error("Error saving settings", error);
-      alert("Failed to save settings.");
+      toast.error("Failed to save settings.");
     } finally {
       setSaving(false);
     }

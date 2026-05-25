@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import toast from 'react-hot-toast';
 import { collection, addDoc, getDocs } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { useRouter } from "next/navigation";
@@ -136,7 +137,7 @@ export default function NewProductPage() {
       router.push("/admin/products");
     } catch (error) {
       console.error("Error adding product:", error);
-      alert("Failed to create product.");
+      toast.error("Failed to create product.");
     } finally {
       setLoading(false);
     }

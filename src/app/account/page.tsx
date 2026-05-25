@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import toast from 'react-hot-toast';
 import { useAuth } from "@/contexts/AuthContext";
 import { auth, db } from "@/lib/firebase";
 import { signOut, sendPasswordResetEmail, updateProfile as updateAuthProfile } from "firebase/auth";
@@ -102,10 +103,10 @@ export default function AccountPage() {
     try {
       await updateAuthProfile(user, { displayName: profileName });
       await setDoc(doc(db, "users", user.uid), { displayName: profileName, phone: profilePhone }, { merge: true });
-      alert("Profile updated successfully!");
+      toast.success("Profile updated successfully!");
     } catch (error) {
       console.error(error);
-      alert("Failed to update profile.");
+      toast.error("Failed to update profile.");
     } finally {
       setProfileUpdating(false);
     }
@@ -119,7 +120,7 @@ export default function AccountPage() {
       setTimeout(() => setResetSent(false), 5000);
     } catch (error) {
       console.error(error);
-      alert("Error sending reset email.");
+      toast.error("Error sending reset email.");
     }
   };
 
@@ -137,7 +138,7 @@ export default function AccountPage() {
     
     // Enforce max 2 rule for new addresses
     if (isAddingAddress && newAddresses.length >= 2) {
-      alert("You can only have up to 2 addresses. Please edit or delete an existing one.");
+      toast("You can only have up to 2 addresses. Please edit or delete an existing one.");
       return;
     }
 
@@ -159,7 +160,7 @@ export default function AccountPage() {
       setEditingAddressIdx(null);
     } catch (error) {
       console.error(error);
-      alert("Failed to save address.");
+      toast.error("Failed to save address.");
     }
   };
 
@@ -391,7 +392,7 @@ export default function AccountPage() {
                       <button 
                         onClick={() => {
                           if (currentAddresses.length >= 2) {
-                            alert("You can only have up to 2 addresses.");
+                            toast("You can only have up to 2 addresses.");
                             return;
                           }
                           setIsAddingAddress(true);

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import toast from 'react-hot-toast';
 import { Loader2 } from "lucide-react";
 import { CartItem } from "@/store/useCart";
 import Script from "next/script";
@@ -61,10 +62,10 @@ export default function RazorpayCheckout({ total, items }: RazorpayCheckoutProps
           });
           
           if (verifyRes.ok) {
-            alert("Payment successful! Order placed.");
+            toast.success("Payment successful! Order placed.");
             // In a real app: clearCart(), redirect to success page
           } else {
-            alert("Payment verification failed. Please contact support.");
+            toast.error("Payment verification failed. Please contact support.");
           }
         },
         prefill: {
@@ -78,12 +79,12 @@ export default function RazorpayCheckout({ total, items }: RazorpayCheckoutProps
 
       const rzp = new (window as any).Razorpay(options);
       rzp.on('payment.failed', function (response: any){
-         alert(response.error.description);
+         toast.error(response.error.description);
       });
       rzp.open();
     } catch (error) {
       console.error(error);
-      alert("Error initiating payment.");
+      toast.error("Error initiating payment.");
     } finally {
       setLoading(false);
     }
