@@ -111,6 +111,20 @@ export default function AdminOrderDetailsPage({ params }: { params: Promise<{ id
         await updateDoc(doc(db, "orders", id), { status: newStatus });
         setOrder({ ...order, status: newStatus });
         setStatus(newStatus);
+        
+        if (newStatus === "Cancelled" || newStatus === "Rejected") {
+          await fetch("/api/email", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              action: "ORDER_CANCELLED",
+              email: customerEmail,
+              firstname: order.shippingAddress?.fullName?.split(" ")[0] || "",
+              lastname: order.shippingAddress?.fullName?.split(" ").slice(1).join(" ") || "",
+              orderId: id
+            })
+          }).catch(console.error);
+        }
       }
     } catch (err) {
       console.error(err);
@@ -132,6 +146,20 @@ export default function AdminOrderDetailsPage({ params }: { params: Promise<{ id
         setOrder({ ...order, status: newStatus });
         setStatus(newStatus);
         setReturnRequest({ ...returnRequest, status: "Approved" });
+        
+        if (newStatus === "Returned") {
+          await fetch("/api/email", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              action: "REFUND_PROCESSED",
+              email: customerEmail,
+              firstname: order.shippingAddress?.fullName?.split(" ")[0] || "",
+              lastname: order.shippingAddress?.fullName?.split(" ").slice(1).join(" ") || "",
+              orderId: id
+            })
+          }).catch(console.error);
+        }
       } else {
         await updateDoc(returnRef, { status: "Denied" });
         await updateDoc(doc(db, "orders", id), { status: "Delivered" });

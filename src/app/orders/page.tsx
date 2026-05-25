@@ -53,6 +53,21 @@ export default function OrdersPage() {
     if (!confirm("Are you sure you want to request cancellation for this order?")) return;
     try {
       await updateDoc(doc(db, "orders", orderId), { status: "Cancellation Requested" });
+      
+      if (user?.email) {
+        await fetch("/api/email", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            action: "ORDER_CANCELLED",
+            email: user.email,
+            firstname: userData?.displayName?.split(" ")[0] || user.displayName?.split(" ")[0] || "",
+            lastname: userData?.displayName?.split(" ").slice(1).join(" ") || user.displayName?.split(" ").slice(1).join(" ") || "",
+            orderId
+          })
+        }).catch(console.error);
+      }
+
       setOrders(prev => prev.map(o => o.id === orderId ? { ...o, status: "Cancellation Requested" } : o));
       toast("Cancellation request sent.");
     } catch (err) {
@@ -108,6 +123,20 @@ export default function OrdersPage() {
       // Update order status
       const newStatus = returnType === "return" ? "Return Requested" : "Replacement Requested";
       await updateDoc(doc(db, "orders", returnOrder.id), { status: newStatus });
+      
+      if (user?.email) {
+        await fetch("/api/email", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            action: "RETURN_REQUESTED",
+            email: user.email,
+            firstname: userData?.displayName?.split(" ")[0] || user.displayName?.split(" ")[0] || "",
+            lastname: userData?.displayName?.split(" ").slice(1).join(" ") || user.displayName?.split(" ").slice(1).join(" ") || "",
+            orderId: returnOrder.id
+          })
+        }).catch(console.error);
+      }
       
       setOrders(prev => prev.map(o => o.id === returnOrder.id ? { ...o, status: newStatus } : o));
       

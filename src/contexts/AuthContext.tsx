@@ -74,6 +74,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             try {
               await setDoc(userDocRef, newUserData);
               setUserData(newUserData);
+              
+              // Trigger welcome email
+              if (firebaseUser.email) {
+                const names = firebaseUser.displayName?.split(" ") || [];
+                fetch("/api/email", {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({
+                    action: "ACCOUNT_CREATED",
+                    email: firebaseUser.email,
+                    firstname: names[0] || "",
+                    lastname: names.length > 1 ? names.slice(1).join(" ") : ""
+                  })
+                }).catch(console.error);
+              }
+              
             } catch (error) {
               console.error("Error creating user doc", error);
             }

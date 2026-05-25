@@ -118,7 +118,22 @@ export default function CheckoutPage() {
 
     if (paymentMethod === "cod") {
       try {
-        await saveOrderToFirestore("Pending (COD)");
+        const orderId = await saveOrderToFirestore("Pending (COD)");
+        
+        if (user?.email) {
+          await fetch("/api/email", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              action: "ORDER_PLACED",
+              email: user.email,
+              firstname: user.displayName?.split(" ")[0] || "",
+              lastname: user.displayName?.split(" ").slice(1).join(" ") || "",
+              orderId
+            })
+          }).catch(console.error);
+        }
+
         setOrderPlaced(true);
         clearCart();
         router.push("/checkout/success");
@@ -161,7 +176,22 @@ export default function CheckoutPage() {
               });
               
               if (verifyRes.ok) {
-                await saveOrderToFirestore("Paid", res.razorpay_payment_id);
+                const orderId = await saveOrderToFirestore("Paid", res.razorpay_payment_id);
+                
+                if (user?.email) {
+                  await fetch("/api/email", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                      action: "ORDER_PLACED",
+                      email: user.email,
+                      firstname: user.displayName?.split(" ")[0] || "",
+                      lastname: user.displayName?.split(" ").slice(1).join(" ") || "",
+                      orderId
+                    })
+                  }).catch(console.error);
+                }
+
                 setOrderPlaced(true);
                 clearCart();
                 router.push("/checkout/success");
