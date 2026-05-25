@@ -1,14 +1,14 @@
 "use client";
 
 import { useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { collection, getDocs } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import Link from "next/link";
 import { Search, Star } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
-export default function SearchResultsPage() {
+function SearchResults() {
   const searchParams = useSearchParams();
   const query = searchParams.get("q") || "";
   const [results, setResults] = useState<any[]>([]);
@@ -117,5 +117,22 @@ export default function SearchResultsPage() {
         </motion.div>
       )}
     </div>
+  );
+}
+
+export default function SearchResultsPage() {
+  return (
+    <Suspense fallback={
+      <div className="container mx-auto px-4 py-8 md:py-12 max-w-7xl">
+        <div className="animate-pulse h-10 w-48 bg-foreground/10 rounded mb-8"></div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {[1, 2, 3, 4].map(i => (
+            <div key={i} className="bg-foreground/5 animate-pulse h-80 rounded-[var(--radius-bento)]"></div>
+          ))}
+        </div>
+      </div>
+    }>
+      <SearchResults />
+    </Suspense>
   );
 }
